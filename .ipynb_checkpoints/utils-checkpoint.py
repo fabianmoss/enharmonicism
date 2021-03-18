@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from shapely.geometry import Polygon
+from scipy.stats import entropy
 
 def plot_pc_dist(idx, data):
     data.loc[idx,:].plot(kind="bar", rot=0)
@@ -20,11 +21,17 @@ def tpc2npc(tpc):
     wind = len(acc)
     return ( d[step] + (wind * direction) ) % 12
 
-def get_polygon(piece_id, data, ordering="chromatic"):
-    
-    idx = pcs(ordering=ordering)
+def pcs(ordering="chromatic"):
+    pcs = np.asarray([k for k in range(12)])
+    pcs = pcs if ordering=="chromatic" else pcs * 7 % 12 if ordering =="fifths" else None
+    return pcs
 
-    values = data.loc[piece_id, idx].values
+# def get_polygon(piece_id, data, ordering="chromatic"):
+def get_polygon(values, ordering="chromatic"): #data, 
+    
+    values = np.array(values)[pcs(ordering=ordering)]
+    
+#     values = data.loc[piece_id, idx].values
     angles = sorted([n / float(12) * 2 * np.pi for n in range(12)])
     angles += angles[:1]
     
@@ -36,11 +43,6 @@ def get_polygon(piece_id, data, ordering="chromatic"):
     y = values * np.sin(angles)
     
     return values, angles, Polygon(zip(x,y)) 
-
-def pcs(ordering="chromatic"):
-    pcs = np.asarray([k for k in range(12)])
-    pcs = pcs if ordering=="chromatic" else pcs * 7 % 12 if ordering =="fifths" else None
-    return pcs
 
 def plot_area(piece_id, data, ordering="fifths", ax=None, fill=True):
     """
@@ -58,13 +60,13 @@ def plot_area(piece_id, data, ordering="fifths", ax=None, fill=True):
     
     # set position in degrees (360°) and labels for radial values
     ax.set_rlabel_position(0)
-    rlabels = [0.00, 0.05, 0.10, 0.15, 0.2, 0.25]
+    rlabels = np.linspace(0,1,21).round(2)
     ax.set_rticks([l for l in rlabels])
     ax.set_rlabel_position(180)
     ax.set_yticklabels(rlabels, fontdict={'fontsize':13, 'color':'#555555'})
     
     # data to plot
-    values, angles, polygon = get_polygon(piece_id, data=data, ordering=ordering)
+    values, angles, polygon = get_polygon(data.loc[piece_id,[k for k in range(12)]], ordering=ordering) # , data=data
     
     # area
     if fill:
@@ -91,3 +93,13 @@ def plot_both_areas(idx, data, fill=True):
     fig, axes = plt.subplots(1,2, figsize=(10,6), subplot_kw={"polar": True})
     plot_area(idx, data=data, ordering="chromatic", ax=axes[0], fill=fill)
     plot_area(idx, data=data, ordering="fifths", ax=axes[1], fill=fill)
+    
+def calculate_features(df):
+    from scipy.stats import entropy 
+    freqs = df[[k for k in range(12)]]
+    
+    df["fifths_A"] = freqs.apply(lambda x: get_polygon(x, ordering="fifths")[2].area, axis=1)
+    df["chromatic_A"] = freqs[[k for k in range(12)]].apply(lambda x: get_polygon(x, ordering="chromatic")[2].area, axis=1)
+    df["entropy"] = freqs.apply(lambda x: entropy(x), axis=1)
+    df["ratio_chr/f"] = df["chromatic_A"] / df["fifths_A"]
+    df["difference_f-chr"] = df["fifths_A"] - df["chromatic_A"]
