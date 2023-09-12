@@ -93,19 +93,22 @@ def plot_area(piece_id, data, ordering="fifths", ax=None, fill=True):
     return ax
 
 def plot_both_areas(idx, data, fill=True):
-    _, axes = plt.subplots(1,3, figsize=(15,6), subplot_kw={"polar": True})
+    _, axes = plt.subplots(1,2, figsize=(15,6), subplot_kw={"polar": True})
     plot_area(idx, data=data, ordering="chromatic", ax=axes[0], fill=fill)
     plot_area(idx, data=data, ordering="fifths", ax=axes[1], fill=fill)
 
-    ## MEGA HACK BEGIN %%%%%
-    v1, a1, _ = get_polygon(data.loc[idx,[k for k in range(12)]], ordering="fifths")
-    v2, a2, _ = get_polygon(data.loc[idx,[k for k in range(12)]], ordering="chromatic")
-    vs = (v1[:-1] * v2[:-1])
-    vs = vs / vs.sum()
-    data.loc[len(data.index)] = vs
-    plot_area(data.shape[0]-1,data=data, ordering="fifths", ax=axes[2], fill=fill)
-    data = data.loc[:-1,:]  
-    ## END MEGA HACK %%%%%%
+    # ## MEGA HACK BEGIN %%%%%
+    # v1, a1, _ = get_polygon(data.loc[idx,[k for k in range(12)]], ordering="fifths")
+    # v2, a2, _ = get_polygon(data.loc[idx,[k for k in range(12)]], ordering="chromatic")
+    # vs = (v1[:-1] * v2[:-1])
+    # vs = vs / vs.sum()
+    # data.loc[len(data.index)] = vs
+    # plot_area(data.shape[0]-1,data=data, ordering="fifths", ax=axes[2], fill=fill)
+    # data = data.loc[:-1,:]  
+    # ## END MEGA HACK %%%%%%
+
+    plt.tight_layout()
+    return axes
 
 def pol2cart(magnitude, phase):
     x = magnitude * np.cos(phase)
