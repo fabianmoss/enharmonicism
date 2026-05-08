@@ -1,4 +1,7 @@
 *.tar.gz
 
 # large data sets 
-data/lmd_matched/*
+data/lmd_matched/
+
+# anywhere in the repo 
+**/checkpoints/
