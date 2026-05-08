@@ -1,1 +1,4 @@
 *.tar.gz
+
+# large data sets 
+data/lmd_matched
