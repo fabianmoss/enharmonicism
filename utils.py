@@ -5,6 +5,7 @@ from shapely.geometry import Polygon
 # import pandas as pd
 # from scipy.special import kl_div
 
+DPI=150 ## for notebook, increase for publication or use PDF
 
 def plot_pc_dist(idx, data):
     data.loc[idx, :].plot(kind="bar", rot=0)
@@ -62,6 +63,9 @@ def plot_area(piece_id, data, ordering="fifths", ax=None, draw=True, fill=True):
     
     if ax == None:
         fig, ax = plt.subplots(subplot_kw={"polar": True})
+
+    # title
+    ax.set_title(ordering, fontsize=16)
     
     # initialize radar plot
     ax.set_theta_offset(np.pi / 2)  # Put first axis on top
@@ -100,9 +104,6 @@ def plot_area(piece_id, data, ordering="fifths", ax=None, draw=True, fill=True):
     ax.set_xticks(angles)
     idx = np.append(idx, 0)
     ax.set_xticklabels(idx, fontdict={'fontsize': 16})
-
-    # title
-    ax.set_title(ordering, fontsize=16)
 
     return ax
 
