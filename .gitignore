@@ -5,3 +5,4 @@ data/lmd_matched/
 
 # anywhere in the repo 
 **/checkpoints/
+lmd_matched.tar.gz
