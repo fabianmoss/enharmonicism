@@ -23,8 +23,12 @@
 
 \usepackage{blindtext} % Package to generate dummy text throughout this template 
 
-\usepackage[sc]{mathpazo} % Use the Palatino font
-\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+% \usepackage[sc]{mathpazo} % Use the Palatino font
+% \usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Pagella}
+\usepackage{unicode-math}
+\setmathfont{Latin Modern Math}
 \linespread{1.05} % Line spacing - Palatino needs more space between lines
 \usepackage{microtype} % Slightly tweak font spacing for aesthetics
 
@@ -231,6 +235,306 @@ makes the resulting DFT matrix unitary, which is convenient in many circumstance
 Fast Fourier transform algorithms utilize the symmetries of the matrix to reduce the time
 of multiplying a vector by this matrix, from the usual $O(N^{2})$. Similar techniques can be applied
 for multiplications by matrices such as Hadamard matrix and the Walsh matrix.
+
+\subsubsection{Pasted from ChatGPT: A Fourier-Theoretic Measure of Structural Preservation}
+
+Let $P$ be a probability distribution over the twelve pitch classes, viewed as a function on the cyclic group
+
+\[
+\mathbb{Z}_{12} = \{0,\ldots,11\},
+\]
+
+with
+
+\[
+P(x)\ge0,\qquad
+\sum_{x\in\mathbb Z_{12}}P(x)=1.
+\]
+
+Rather than viewing $P$ simply as a vector of probabilities, we regard it as a function on a finite Abelian group. This allows us to analyze its structure using harmonic analysis, where the natural basis is given by the irreducible characters of $\mathbb Z_{12}$.
+
+The discrete Fourier transform (DFT) of $P$ is
+
+\[
+\widehat P(k)
+=
+\sum_{x=0}^{11}
+P(x)
+e^{-2\pi i kx/12},
+\qquad
+k=0,\ldots,11.
+\]
+
+The inverse transform is
+
+\[
+P(x)
+=
+\frac1{12}
+\sum_{k=0}^{11}
+\widehat P(k)
+e^{2\pi i kx/12}.
+\]
+
+Thus the Fourier coefficients provide an alternative coordinate system for describing the pitch-class distribution.
+
+\subsection{Interpretation of the Fourier coefficients}
+
+Each Fourier coefficient corresponds to a periodic component of the pitch-class distribution.
+
+The zeroth coefficient,
+
+\[
+\widehat P(0)=1,
+\]
+
+contains only the total probability mass.
+
+The remaining coefficients describe cyclic periodicities.
+
+For example,
+
+\begin{center}
+\begin{tabular}{cl}
+$k$ & Approximate musical interpretation\\
+\hline
+1 & global orientation of the chromatic circle\\
+2 & whole-tone polarity\\
+3 & minor-third / diminished-seventh periodicity\\
+4 & augmented-triad periodicity\\
+6 & tritone polarity
+\end{tabular}
+\end{center}
+
+Since $P$ is real-valued,
+
+\[
+\widehat P(12-k)
+=
+\overline{\widehat P(k)},
+\]
+
+so only six independent complex coefficients exist.
+
+The magnitudes
+
+\[
+|\widehat P(k)|
+\]
+
+measure the strength of each periodicity, while the phases specify where that periodicity is located on the chromatic circle.
+
+This decomposition is well established in computational music theory, where the Fourier coefficients are often interpreted as descriptors of intervallic structure.
+
+\subsection{Automorphisms of the chromatic circle}
+
+The multiplicative units of $\mathbb Z_{12}$ are
+
+\[
+\{1,5,7,11\},
+\]
+
+each defining an automorphism of the cyclic group.
+
+Here we consider
+
+\[
+\pi(x)=7x\pmod{12}.
+\]
+
+Since
+
+\[
+7^2\equiv1\pmod{12},
+\]
+
+the map is an involution.
+
+If
+
+\[
+Q(x)=P(\pi^{-1}(x)),
+\]
+
+then because $7^{-1}=7$,
+
+\[
+Q(x)=P(7x).
+\]
+
+This operation merely reorders the pitch classes.
+
+Importantly, Shannon entropy, Kullback--Leibler divergence, and Jensen--Shannon divergence cannot distinguish $P$ from $Q$, since they depend only on the multiset of probabilities rather than on their assignment to pitch classes.
+
+The Fourier transform, however, reveals how the automorphism acts on musical structure.
+
+\subsection{Action on the Fourier spectrum}
+
+The Fourier transform of $Q$ is
+
+\[
+\widehat Q(k)
+=
+\sum_x
+Q(x)
+e^{-2\pi i kx/12}.
+\]
+
+Substituting $Q(x)=P(7x)$ and changing variables gives
+
+\[
+\widehat Q(k)
+=
+\widehat P(7k\bmod12).
+\]
+
+Thus the automorphism does not distort the Fourier coefficients.
+
+Instead, it permutes them.
+
+The induced permutation is
+
+\[
+\begin{array}{c|cccccccccccc}
+k      &0&1&2&3&4&5&6&7&8&9&10&11\\
+\hline
+7k\bmod12
+       &0&7&2&9&4&11&6&1&8&3&10&5.
+\end{array}
+\]
+
+Hence
+
+\[
+\begin{aligned}
+0&\leftrightarrow0,\\
+2&\leftrightarrow2,\\
+4&\leftrightarrow4,\\
+6&\leftrightarrow6,\\
+8&\leftrightarrow8,\\
+10&\leftrightarrow10,
+\end{aligned}
+\]
+
+while
+
+\[
+(1\,7),\qquad
+(3\,9),\qquad
+(5\,11)
+\]
+
+are exchanged.
+
+Consequently, all even Fourier modes are invariant under multiplication by seven, whereas the odd modes are reflected.
+
+This decomposition provides a natural distinction between structural features that are preserved by the automorphism and those that are transformed.
+
+\subsection{Spectral energy}
+
+By Parseval's identity,
+
+\[
+\sum_{x=0}^{11}|P(x)|^2
+=
+\frac1{12}
+\sum_{k=0}^{11}
+|\widehat P(k)|^2.
+\]
+
+The quantities
+
+\[
+|\widehat P(k)|^2
+\]
+
+may therefore be interpreted as the distribution of structural energy across Fourier modes.
+
+Normalizing gives
+
+\[
+E_k
+=
+\frac{
+|\widehat P(k)|^2
+}{
+\sum_{j=0}^{11}
+|\widehat P(j)|^2
+},
+\]
+
+which satisfies
+
+\[
+E_k\ge0,
+\qquad
+\sum_kE_k=1.
+\]
+
+Thus $\{E_k\}$ forms a probability distribution over harmonic components rather than over pitch classes.
+
+\subsection{Information retained by the automorphism}
+
+Because multiplication by seven leaves the even Fourier modes fixed, a natural measure of structural preservation is the proportion of spectral energy contained within those invariant modes,
+
+\[
+R
+=
+\frac{
+\sum_{k\in\{0,2,4,6,8,10\}}
+|\widehat P(k)|^2
+}{
+\sum_{k=0}^{11}
+|\widehat P(k)|^2
+}.
+\]
+
+The quantity $R$ lies between $0$ and $1$.
+
+Values near one indicate that most of the harmonic structure resides in Fourier modes that are invariant under the automorphism, implying that multiplication by seven preserves most of the distribution's structural organization.
+
+Conversely, values near zero indicate that the structure depends primarily on odd Fourier modes, which are exchanged by the automorphism.
+
+A more refined measure compares the entire spectra before and after transformation,
+
+\[
+C
+=
+\sum_{k=0}^{11}
+w_k
+\,
+\widehat P(k)
+\overline{\widehat P(7k)},
+\]
+
+where $w_k$ are non-negative weights reflecting the relative importance of different periodicities.
+
+Normalizing yields
+
+\[
+\rho
+=
+\frac{
+\sum_k
+w_k
+\,
+\Re\!\left(
+\widehat P(k)
+\overline{\widehat P(7k)}
+\right)
+}{
+\sum_k
+w_k
+|\widehat P(k)|^2
+},
+\]
+
+which may be interpreted as a spectral correlation coefficient.
+
+Unlike Shannon-theoretic measures, which are invariant under any permutation of the underlying probabilities, these Fourier-based quantities are sensitive to the algebraic action of the automorphism on the harmonic structure of the pitch-class distribution.
+
+They therefore quantify not whether information is preserved in the information-theoretic sense, but rather how much of the musically meaningful periodic organization remains invariant under the transformation.
+
 
 \subsection{Pitch-class distributions as areas}
 
